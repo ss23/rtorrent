@@ -226,6 +226,8 @@ SCgiTask::receive_write(const char* buffer, uint32_t length) {
   if (buffer == NULL || length > (100 << 20))
     throw torrent::internal_error("SCgiTask::receive_write(...) received bad input.");
 
+  torrent::thread_base::release_global_lock();
+
   // Need to cast due to a bug in MacOSX gcc-4.0.1.
   if (length + 256 > std::max(m_bufferSize, (unsigned int)default_buffer_size))
     realloc_buffer(length + 256, NULL, 0);
@@ -249,6 +251,9 @@ SCgiTask::receive_write(const char* buffer, uint32_t length) {
   lt_log_print_dump(torrent::LOG_RPC_DUMP, m_buffer, m_bufferSize, "scgi", "RPC write.", 0);
 
   event_write();
+
+  torrent::thread_base::acquire_global_lock();
+
   return true;
 }
 
