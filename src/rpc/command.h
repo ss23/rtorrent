@@ -39,7 +39,6 @@
 
 #include <functional>
 #include <limits>
-#include <inttypes.h>
 #include <torrent/object.h>
 #include lt_tr1_functional
 
