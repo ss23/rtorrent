@@ -67,7 +67,7 @@ matrix:
 # TODO: Use the same branch name if libtorrent has it.
 before_install:
  - git clone https://github.com/rakshasa/libtorrent.git
- - (cd libtorrent && (git checkout ${TRAVIS_BRANCH} || true) && ./autogen.sh && CXX="$COMPILER" ./configure && make -j12 && sudo make install)
+ - (cd libtorrent && (git checkout ${TRAVIS_BRANCH} || true) && ./autogen.sh && CXX="$COMPILER" ./configure --prefix=/usr/ && make -j12 && sudo make install)
 
 script:
 - ./autogen.sh && CXX="$COMPILER" ./configure && make -j12
