@@ -83,6 +83,8 @@ void
 Manager::push_log(const char* msg) {
   m_log_important->lock_and_push_log(msg, strlen(msg), 0);
   m_log_complete->lock_and_push_log(msg, strlen(msg), 0);
+
+  lt_log_print(torrent::LOG_DEBUG, msg, 0);
 }
 
 Manager::Manager() :
