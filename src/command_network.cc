@@ -49,6 +49,7 @@
 #include <torrent/data/file_manager.h>
 #include <torrent/download/resource_manager.h>
 #include <torrent/net/bind_manager.h>
+#include <torrent/net/socket_address.h>
 #include <torrent/utils/log.h>
 #include <torrent/utils/option_strings.h>
 
@@ -269,6 +270,26 @@ bind_set_address(const torrent::Object::list_type& args) {
   return torrent::Object();
 }
 
+static torrent::Object
+bind_list() {
+  auto result = torrent::Object::create_list();
+
+  for (auto& itr : *torrent::bind()) {
+    auto entry = torrent::Object::create_list();
+
+    entry.insert_back(itr.name);
+    entry.insert_back(torrent::sa_addr_str(itr.address.get()));
+    entry.insert_back(itr.listen_port_first);
+    entry.insert_back(itr.listen_port_last);
+    entry.insert_back(itr.priority);
+    //entry.insert_back(flags);
+
+    result.insert_back(entry);
+  }
+
+  return result;
+}
+
 void
 initialize_command_network() {
   torrent::ConnectionManager* cm = torrent::connection_manager();
@@ -327,6 +348,13 @@ initialize_command_network() {
   CMD2_ANY_STRING_V("network.proxy_address.set",     std::bind(&core::Manager::set_proxy_address, control->core(), std::placeholders::_2));
 
   CMD2_ANY_LIST    ("network.bind.set_address",      std::bind(&bind_set_address, std::placeholders::_2));
+
+  CMD2_ANY         ("network.bind",                  std::bind(&bind_list));
+  CMD2_ANY_V       ("network.bind.clear",            std::bind(&torrent::bind_manager::clear, torrent::bind()));
+
+  //CMD2_ANY_LIST    ("network.bind.add",              std::bind(&bind_add, std::placeholders::_2));
+
+  //CMD2_ANY_LIST    ("network.bind.ipv4.set",         std::bind(&torrent::BindManager::clear, torrent::bind()));
 
   CMD2_ANY         ("network.max_open_files",        std::bind(&torrent::FileManager::max_open_files, fileManager));
   CMD2_ANY_VALUE_V ("network.max_open_files.set",    std::bind(&torrent::FileManager::set_max_open_files, fileManager, std::placeholders::_2));
