@@ -43,7 +43,7 @@
 namespace rpc {
 
 int
-parse_option_flag(const std::string& option, std::function<int (const std::string&)> ftor) {
+parse_option_flag(const std::string& option, parse_option_flag_type ftor) {
   auto first = option.begin();
   auto last = option.end();
 
@@ -64,7 +64,7 @@ parse_option_flag(const std::string& option, std::function<int (const std::strin
 }
 
 int
-parse_option_flags(const std::string& option, std::function<int (const std::string&)> ftor, int flags) {
+parse_option_flags(const std::string& option, parse_option_flag_type ftor, int flags) {
   auto first = option.begin();
   auto last = option.end();
 
@@ -99,7 +99,7 @@ parse_option_flags(const std::string& option, std::function<int (const std::stri
 }
 
 void
-parse_option_for_each(const std::string& option, std::function<int (const std::string&)> ftor) {
+parse_option_for_each(const std::string& option, parse_option_flag_type ftor) {
   auto first = option.begin();
   auto last = option.end();
 
@@ -124,6 +124,46 @@ parse_option_for_each(const std::string& option, std::function<int (const std::s
     if (*first++ != '|' || first == last)
       throw torrent::input_error(option);
   }
+}
+
+std::string
+parse_option_print_vector(int flags, const std::vector<std::pair<const char*, int>>& flag_list) {
+  std::string result;
+
+  for (auto f : flag_list) {
+    if (f.second < 0) {
+      if ((flags & f.second) != flags)
+        continue;
+    } else {
+      if ((flags & f.second) != f.second)
+        continue;
+    }
+
+    if (!result.empty())
+      result += '|';
+
+    result += f.first;
+  }
+
+  return result;
+}
+
+std::string
+parse_option_print_flags(unsigned int flags, parse_option_rflag_type ftor) {
+  std::string result;
+
+  for (int i = 1; flags != 0; i <<= 1) {
+    if (!(flags & i))
+      continue;
+
+    if (!result.empty())
+      result += '|';
+
+    result += ftor(i);
+    flags &= ~i;
+  }
+
+  return result;
 }
 
 }

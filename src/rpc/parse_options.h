@@ -40,16 +40,23 @@
 #include <cstring>
 #include <functional>
 #include <string>
+#include <vector>
 
 namespace rpc {
 
 // If a flag returned by the functor is negative it is treated as a
 // negation of the flag.
 
-int parse_option_flag(const std::string& option, std::function<int (const std::string&)> ftor);
-int parse_option_flags(const std::string& option, std::function<int (const std::string&)> ftor, int flags = int());
+typedef std::function<int (const std::string&)>   parse_option_flag_type;
+typedef std::function<const char* (unsigned int)> parse_option_rflag_type;
 
-void parse_option_for_each(const std::string& option, std::function<void (const std::string&)> ftor);
+int parse_option_flag(const std::string& option, parse_option_flag_type ftor);
+int parse_option_flags(const std::string& option, parse_option_flag_type ftor, int flags = int());
+
+void parse_option_for_each(const std::string& option, parse_option_flag_type ftor);
+
+std::string parse_option_print_vector(int flags, const std::vector<std::pair<const char*, int>>& flag_list);
+std::string parse_option_print_flags(unsigned int flags, parse_option_rflag_type ftor);
 
 }
 

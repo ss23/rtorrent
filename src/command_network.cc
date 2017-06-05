@@ -59,6 +59,7 @@
 #include "ui/root.h"
 #include "rpc/parse.h"
 #include "rpc/parse_commands.h"
+#include "rpc/parse_options.h"
 
 #include "globals.h"
 #include "control.h"
@@ -282,7 +283,7 @@ bind_list() {
     entry.insert_back(itr.listen_port_first);
     entry.insert_back(itr.listen_port_last);
     entry.insert_back(itr.priority);
-    //entry.insert_back(flags);
+    entry.insert_back(rpc::parse_option_print_flags(itr.flags, std::bind(&torrent::option_to_string, torrent::OPTION_BIND, std::placeholders::_1, "invalid")));
 
     result.insert_back(entry);
   }

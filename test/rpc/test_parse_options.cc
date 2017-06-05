@@ -41,6 +41,16 @@ flag_to_int(const std::string& flag) {
   throw torrent::input_error("unknown flag");
 }
 
+const char*
+int_to_flag(int flag) {
+  for (auto f : flag_list) {
+    if (f.second == flag)
+      return f.first;
+  }
+
+  throw torrent::input_error("unknown flag");
+}
+
 #define FLAG_ASSERT(flags, result)                                      \
   CPPUNIT_ASSERT(rpc::parse_option_flag(flags, std::bind(&flag_to_int, std::placeholders::_1)) == (result))
 
@@ -120,6 +130,32 @@ TestParseOptions::test_flags_complex() {
   FLAGS_ASSERT_VALUE("not_bar|not_a12", flag_2, 0);
 
   FLAGS_ASSERT_VALUE("bar|not_a12", flag_3 | flag_4, flag_2 | flag_3);
+}
+
+#define FLAGS_ASSERT_PRINT(value, result)                               \
+  CPPUNIT_ASSERT(rpc::parse_option_print_vector(value, flag_list) == (result));
+#define FLAGS_ASSERT_PRINT_FLAGS(value, result)                         \
+  CPPUNIT_ASSERT(rpc::parse_option_print_flags(value, std::bind(&int_to_flag, std::placeholders::_1)) == (result));
+#define FLAGS_ASSERT_ERROR_PRINT_FLAGS(value)                           \
+  ASSERT_CATCH_INPUT_ERROR({ rpc::parse_option_print_flags(value, std::bind(&int_to_flag, std::placeholders::_1)); });
+
+void
+TestParseOptions::test_flags_print_vector() {
+  FLAGS_ASSERT_PRINT(0, "not_bar|not_a12");
+  FLAGS_ASSERT_PRINT(flag_2, "bar|not_a12");
+  FLAGS_ASSERT_PRINT(flag_2 | flag_4, "bar|a12");
+  FLAGS_ASSERT_PRINT(flag_1, "foo|not_bar|not_a12");
+}
+
+void
+TestParseOptions::test_flags_print_flags() {
+  FLAGS_ASSERT_PRINT_FLAGS(0, "");
+  FLAGS_ASSERT_PRINT_FLAGS(flag_1, "foo");
+  FLAGS_ASSERT_PRINT_FLAGS(flag_1 | flag_2, "foo|bar");
+  FLAGS_ASSERT_PRINT_FLAGS(flag_1 | flag_2 | flag_3, "foo|bar|baz");
+
+  FLAGS_ASSERT_ERROR_PRINT_FLAGS(100);
+  // Test int min.
 }
 
 #define FLAG_LT_LOG_ASSERT(flags, result)                               \
