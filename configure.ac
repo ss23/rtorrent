@@ -1,6 +1,6 @@
 AC_INIT(rtorrent, 0.9.6, sundell.software@gmail.com)
 
-AC_DEFINE(API_VERSION, 9, api version)
+AC_DEFINE(API_VERSION, 10, api version)
 
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS(config.h)

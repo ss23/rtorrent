@@ -291,6 +291,25 @@ bind_list() {
   return result;
 }
 
+static torrent::Object
+network_port_range() {
+  char buf[12];
+
+  snprintf(buf, 12, "%" PRIu16 "-%" PRIu16, torrent::bind()->listen_port_first(), torrent::bind()->listen_port_last());
+  return buf;
+}
+
+static void
+network_port_range_set(const std::string& arg) {
+  uint16_t port_first;
+  uint16_t port_last;
+
+  if (std::sscanf(arg.c_str(), "%" PRIu16 "-%" PRIu16, &port_first, &port_last) != 2)
+    throw torrent::input_error("Invalid port_range argument.");
+
+  torrent::bind()->set_listen_port_range(port_first, port_last, 0);
+}
+
 void
 initialize_command_network() {
   torrent::ConnectionManager* cm = torrent::connection_manager();
@@ -298,11 +317,6 @@ initialize_command_network() {
   core::CurlStack* httpStack = control->core()->http_stack();
 
   CMD2_ANY_STRING  ("encoding.add", std::bind(&apply_encoding_list, std::placeholders::_2));
-
-  // Isn't port_open used?
-  CMD2_VAR_BOOL    ("network.port_open",   true);
-  CMD2_VAR_BOOL    ("network.port_random", true);
-  CMD2_VAR_STRING  ("network.port_range",  "6881-6999");
 
   CMD2_ANY         ("network.listen.port",        std::bind(&torrent::ConnectionManager::listen_port, cm));
   CMD2_ANY         ("network.listen.backlog",     std::bind(&torrent::ConnectionManager::listen_backlog, cm));
@@ -370,4 +384,11 @@ initialize_command_network() {
   CMD2_ANY_STRING  ("network.xmlrpc.dialect.set",    std::bind(&apply_xmlrpc_dialect, std::placeholders::_2));
   CMD2_ANY         ("network.xmlrpc.size_limit",     std::bind(&rpc::XmlRpc::size_limit));
   CMD2_ANY_VALUE_V ("network.xmlrpc.size_limit.set", std::bind(&rpc::XmlRpc::set_size_limit, std::placeholders::_2));
+
+  // Deprecated:
+
+  CMD2_VAR_BOOL    ("network.port_open",   true); // fixme
+  CMD2_VAR_BOOL    ("network.port_random", true); // fixme
+  CMD2_ANY         ("network.port_range",     std::bind(&network_port_range));
+  CMD2_ANY_STRING_V("network.port_range.set", std::bind(&network_port_range_set, std::placeholders::_2));
 }
