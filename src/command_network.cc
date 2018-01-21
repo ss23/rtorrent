@@ -312,15 +312,12 @@ network_port_range_set(const std::string& arg) {
 
 void
 initialize_command_network() {
-  torrent::ConnectionManager* cm = torrent::connection_manager();
-  torrent::FileManager* fileManager = torrent::file_manager();
-  core::CurlStack* httpStack = control->core()->http_stack();
+  auto bm = torrent::bind();
+  auto cm = torrent::connection_manager();
+  auto fm = torrent::file_manager();
+  auto hs = control->core()->http_stack();
 
   CMD2_ANY_STRING  ("encoding.add", std::bind(&apply_encoding_list, std::placeholders::_2));
-
-  CMD2_ANY         ("network.listen.port",        std::bind(&torrent::ConnectionManager::listen_port, cm));
-  CMD2_ANY         ("network.listen.backlog",     std::bind(&torrent::ConnectionManager::listen_backlog, cm));
-  CMD2_ANY_VALUE_V ("network.listen.backlog.set", std::bind(&torrent::ConnectionManager::set_listen_backlog, cm, std::placeholders::_2));
 
   CMD2_VAR_BOOL    ("protocol.pex",            true);
   CMD2_ANY_LIST    ("protocol.encryption.set", std::bind(&apply_encryption, std::placeholders::_2));
@@ -333,21 +330,21 @@ initialize_command_network() {
   CMD2_VAR_STRING  ("protocol.choke_heuristics.down.leech", "download_leech");
   CMD2_VAR_STRING  ("protocol.choke_heuristics.down.seed",  "download_leech");
 
-  CMD2_ANY         ("network.http.cacert",                std::bind(&core::CurlStack::http_cacert, httpStack));
-  CMD2_ANY_STRING_V("network.http.cacert.set",            std::bind(&core::CurlStack::set_http_cacert, httpStack, std::placeholders::_2));
-  CMD2_ANY         ("network.http.capath",                std::bind(&core::CurlStack::http_capath, httpStack));
-  CMD2_ANY_STRING_V("network.http.capath.set",            std::bind(&core::CurlStack::set_http_capath, httpStack, std::placeholders::_2));
-  CMD2_ANY         ("network.http.dns_cache_timeout",     std::bind(&core::CurlStack::dns_timeout, httpStack));
-  CMD2_ANY_VALUE_V ("network.http.dns_cache_timeout.set", std::bind(&core::CurlStack::set_dns_timeout, httpStack, std::placeholders::_2));
-  CMD2_ANY         ("network.http.current_open",          std::bind(&core::CurlStack::active, httpStack));
-  CMD2_ANY         ("network.http.max_open",              std::bind(&core::CurlStack::max_active, httpStack));
-  CMD2_ANY_VALUE_V ("network.http.max_open.set",          std::bind(&core::CurlStack::set_max_active, httpStack, std::placeholders::_2));
-  CMD2_ANY         ("network.http.proxy_address",         std::bind(&core::CurlStack::http_proxy, httpStack));
-  CMD2_ANY_STRING_V("network.http.proxy_address.set",     std::bind(&core::CurlStack::set_http_proxy, httpStack, std::placeholders::_2));
-  CMD2_ANY         ("network.http.ssl_verify_host",       std::bind(&core::CurlStack::ssl_verify_host, httpStack));
-  CMD2_ANY_VALUE_V ("network.http.ssl_verify_host.set",   std::bind(&core::CurlStack::set_ssl_verify_host, httpStack, std::placeholders::_2));
-  CMD2_ANY         ("network.http.ssl_verify_peer",       std::bind(&core::CurlStack::ssl_verify_peer, httpStack));
-  CMD2_ANY_VALUE_V ("network.http.ssl_verify_peer.set",   std::bind(&core::CurlStack::set_ssl_verify_peer, httpStack, std::placeholders::_2));
+  CMD2_ANY         ("network.http.cacert",                std::bind(&core::CurlStack::http_cacert, hs));
+  CMD2_ANY_STRING_V("network.http.cacert.set",            std::bind(&core::CurlStack::set_http_cacert, hs, std::placeholders::_2));
+  CMD2_ANY         ("network.http.capath",                std::bind(&core::CurlStack::http_capath, hs));
+  CMD2_ANY_STRING_V("network.http.capath.set",            std::bind(&core::CurlStack::set_http_capath, hs, std::placeholders::_2));
+  CMD2_ANY         ("network.http.dns_cache_timeout",     std::bind(&core::CurlStack::dns_timeout, hs));
+  CMD2_ANY_VALUE_V ("network.http.dns_cache_timeout.set", std::bind(&core::CurlStack::set_dns_timeout, hs, std::placeholders::_2));
+  CMD2_ANY         ("network.http.current_open",          std::bind(&core::CurlStack::active, hs));
+  CMD2_ANY         ("network.http.max_open",              std::bind(&core::CurlStack::max_active, hs));
+  CMD2_ANY_VALUE_V ("network.http.max_open.set",          std::bind(&core::CurlStack::set_max_active, hs, std::placeholders::_2));
+  CMD2_ANY         ("network.http.proxy_address",         std::bind(&core::CurlStack::http_proxy, hs));
+  CMD2_ANY_STRING_V("network.http.proxy_address.set",     std::bind(&core::CurlStack::set_http_proxy, hs, std::placeholders::_2));
+  CMD2_ANY         ("network.http.ssl_verify_host",       std::bind(&core::CurlStack::ssl_verify_host, hs));
+  CMD2_ANY_VALUE_V ("network.http.ssl_verify_host.set",   std::bind(&core::CurlStack::set_ssl_verify_host, hs, std::placeholders::_2));
+  CMD2_ANY         ("network.http.ssl_verify_peer",       std::bind(&core::CurlStack::ssl_verify_peer, hs));
+  CMD2_ANY_VALUE_V ("network.http.ssl_verify_peer.set",   std::bind(&core::CurlStack::set_ssl_verify_peer, hs, std::placeholders::_2));
 
   CMD2_ANY         ("network.send_buffer.size",           std::bind(&torrent::ConnectionManager::send_buffer_size, cm));
   CMD2_ANY_VALUE_V ("network.send_buffer.size.set",       std::bind(&torrent::ConnectionManager::set_send_buffer_size, cm, std::placeholders::_2));
@@ -365,14 +362,20 @@ initialize_command_network() {
   CMD2_ANY_LIST    ("network.bind.set_address",      std::bind(&bind_set_address, std::placeholders::_2));
 
   CMD2_ANY         ("network.bind",                  std::bind(&bind_list));
-  CMD2_ANY_V       ("network.bind.clear",            std::bind(&torrent::bind_manager::clear, torrent::bind()));
+  CMD2_ANY_V       ("network.bind.clear",            std::bind(&torrent::bind_manager::clear, bm));
 
   //CMD2_ANY_LIST    ("network.bind.add",              std::bind(&bind_add, std::placeholders::_2));
 
-  //CMD2_ANY_LIST    ("network.bind.ipv4.set",         std::bind(&torrent::BindManager::clear, torrent::bind()));
+  //CMD2_ANY_LIST    ("network.bind.ipv4.set",         std::bind(&torrent::BindManager::clear, bind));
 
-  CMD2_ANY         ("network.max_open_files",        std::bind(&torrent::FileManager::max_open_files, fileManager));
-  CMD2_ANY_VALUE_V ("network.max_open_files.set",    std::bind(&torrent::FileManager::set_max_open_files, fileManager, std::placeholders::_2));
+  CMD2_ANY         ("network.listen.backlog",     std::bind(&torrent::bind_manager::listen_backlog, bm));
+  CMD2_ANY_VALUE_V ("network.listen.backlog.set", std::bind(&torrent::bind_manager::set_listen_backlog, bm, std::placeholders::_2));
+  CMD2_ANY         ("network.listen.port",        std::bind(&torrent::bind_manager::listen_port, bm));
+  CMD2_ANY         ("network.listen.port.first",  std::bind(&torrent::bind_manager::listen_port_first, bm));
+  CMD2_ANY         ("network.listen.port.last",   std::bind(&torrent::bind_manager::listen_port_last, bm));
+
+  CMD2_ANY         ("network.max_open_files",        std::bind(&torrent::FileManager::max_open_files, fm));
+  CMD2_ANY_VALUE_V ("network.max_open_files.set",    std::bind(&torrent::FileManager::set_max_open_files, fm, std::placeholders::_2));
   CMD2_ANY         ("network.open_sockets",          std::bind(&torrent::ConnectionManager::size, cm));
   CMD2_ANY         ("network.max_open_sockets",      std::bind(&torrent::ConnectionManager::max_size, cm));
   CMD2_ANY_VALUE_V ("network.max_open_sockets.set",  std::bind(&torrent::ConnectionManager::set_max_size, cm, std::placeholders::_2));
@@ -389,6 +392,6 @@ initialize_command_network() {
 
   CMD2_VAR_BOOL    ("network.port_open",   true); // fixme
   CMD2_VAR_BOOL    ("network.port_random", true); // fixme
-  CMD2_ANY         ("network.port_range",     std::bind(&network_port_range));
-  CMD2_ANY_STRING_V("network.port_range.set", std::bind(&network_port_range_set, std::placeholders::_2));
+  CMD2_ANY         ("network.port_range",            std::bind(&network_port_range));
+  CMD2_ANY_STRING_V("network.port_range.set",        std::bind(&network_port_range_set, std::placeholders::_2));
 }
