@@ -368,11 +368,19 @@ initialize_command_network() {
 
   //CMD2_ANY_LIST    ("network.bind.ipv4.set",         std::bind(&torrent::BindManager::clear, bind));
 
-  CMD2_ANY         ("network.listen.backlog",     std::bind(&torrent::bind_manager::listen_backlog, bm));
-  CMD2_ANY_VALUE_V ("network.listen.backlog.set", std::bind(&torrent::bind_manager::set_listen_backlog, bm, std::placeholders::_2));
-  CMD2_ANY         ("network.listen.port",        std::bind(&torrent::bind_manager::listen_port, bm));
-  CMD2_ANY         ("network.listen.port.first",  std::bind(&torrent::bind_manager::listen_port_first, bm));
-  CMD2_ANY         ("network.listen.port.last",   std::bind(&torrent::bind_manager::listen_port_last, bm));
+  CMD2_ANY_V       ("network.listen.open",           std::bind(&torrent::bind_manager::listen_open, bm));
+  CMD2_ANY_V       ("network.listen.close",          std::bind(&torrent::bind_manager::listen_close, bm));
+  CMD2_ANY         ("network.listen.is_open",        std::bind(&torrent::bind_manager::is_listen_open, bm));
+  CMD2_ANY         ("network.listen.backlog",        std::bind(&torrent::bind_manager::listen_backlog, bm));
+  CMD2_ANY_VALUE_V ("network.listen.backlog.set",    std::bind(&torrent::bind_manager::set_listen_backlog, bm, std::placeholders::_2));
+
+  CMD2_ANY         ("network.port",                  std::bind(&torrent::bind_manager::listen_port, bm));
+  CMD2_ANY         ("network.port.first",            std::bind(&torrent::bind_manager::listen_port_first, bm));
+  CMD2_ANY         ("network.port.last",             std::bind(&torrent::bind_manager::listen_port_last, bm));
+  CMD2_ANY         ("network.port.randomize",        std::bind(&torrent::bind_manager::is_port_randomize, bm));
+  CMD2_ANY_VALUE_V ("network.port.randomize.set",    std::bind(&torrent::bind_manager::set_port_randomize, bm, std::placeholders::_2));
+  CMD2_ANY         ("network.port.range",            std::bind(&network_port_range));
+  CMD2_ANY_STRING_V("network.port.range.set",        std::bind(&network_port_range_set, std::placeholders::_2));
 
   CMD2_ANY         ("network.max_open_files",        std::bind(&torrent::FileManager::max_open_files, fm));
   CMD2_ANY_VALUE_V ("network.max_open_files.set",    std::bind(&torrent::FileManager::set_max_open_files, fm, std::placeholders::_2));
@@ -387,11 +395,4 @@ initialize_command_network() {
   CMD2_ANY_STRING  ("network.xmlrpc.dialect.set",    std::bind(&apply_xmlrpc_dialect, std::placeholders::_2));
   CMD2_ANY         ("network.xmlrpc.size_limit",     std::bind(&rpc::XmlRpc::size_limit));
   CMD2_ANY_VALUE_V ("network.xmlrpc.size_limit.set", std::bind(&rpc::XmlRpc::set_size_limit, std::placeholders::_2));
-
-  // Deprecated:
-
-  CMD2_VAR_BOOL    ("network.port_open",   true); // fixme
-  CMD2_VAR_BOOL    ("network.port_random", true); // fixme
-  CMD2_ANY         ("network.port_range",            std::bind(&network_port_range));
-  CMD2_ANY_STRING_V("network.port_range.set",        std::bind(&network_port_range_set, std::placeholders::_2));
 }

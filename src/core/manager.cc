@@ -186,7 +186,7 @@ void
 Manager::listen_open() {
   // This stuff really should be moved outside of manager, make it
   // part of the init script.
-  if (!rpc::call_command_value("network.port_open"))
+  if (!rpc::call_command_value("network.listen.is_open"))
     return;
 
   if (torrent::connection_manager()->listen_open())
