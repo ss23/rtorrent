@@ -55,6 +55,7 @@
 #include <torrent/object_stream.h>
 #include <torrent/tracker_list.h>
 #include <torrent/throttle.h>
+#include <torrent/net/bind_manager.h>
 #include <torrent/utils/log.h>
 
 #include "rpc/parse_commands.h"
@@ -184,9 +185,7 @@ Manager::shutdown(bool force) {
 
 void
 Manager::listen_open() {
-  // This stuff really should be moved outside of manager, make it
-  // part of the init script.
-  if (!rpc::call_command_value("network.listen.is_open"))
+  if (torrent::bind()->is_listen_open())
     return;
 
   if (torrent::connection_manager()->listen_open())
