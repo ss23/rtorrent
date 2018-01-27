@@ -368,6 +368,11 @@ initialize_command_network() {
 
   //CMD2_ANY_LIST    ("network.bind.ipv4.set",         std::bind(&torrent::BindManager::clear, bind));
 
+  CMD2_ANY         ("network.block.accept",          std::bind(&torrent::bind_manager::is_block_accept, bm));
+  CMD2_ANY_VALUE_V ("network.block.accept.set",      std::bind(&torrent::bind_manager::set_block_accept, bm, std::placeholders::_2));
+  CMD2_ANY         ("network.block.connect",         std::bind(&torrent::bind_manager::is_block_connect, bm));
+  CMD2_ANY_VALUE_V ("network.block.connect.set",     std::bind(&torrent::bind_manager::set_block_connect, bm, std::placeholders::_2));
+
   CMD2_ANY_V       ("network.listen.open",           std::bind(&torrent::bind_manager::listen_open, bm));
   CMD2_ANY_V       ("network.listen.close",          std::bind(&torrent::bind_manager::listen_close, bm));
   CMD2_ANY         ("network.listen.is_open",        std::bind(&torrent::bind_manager::is_listen_open, bm));
