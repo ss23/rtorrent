@@ -304,7 +304,7 @@ network_port_range_set(const std::string& arg) {
   uint16_t port_first;
   uint16_t port_last;
 
-  if (std::sscanf(arg.c_str(), "%" PRIu16 "-%" PRIu16, &port_first, &port_last) != 2)
+  if (std::sscanf(arg.c_str(), "%" SCNu16 "-%" SCNu16, &port_first, &port_last) != 2)
     throw torrent::input_error("Invalid port_range argument.");
 
   torrent::bind()->set_listen_port_range(port_first, port_last, 0);
