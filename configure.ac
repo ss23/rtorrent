@@ -32,11 +32,11 @@ TORRENT_WITHOUT_STATVFS
 TORRENT_WITHOUT_STATFS
 
 AX_PTHREAD([], AC_MSG_ERROR([requires pthread]))
-PKG_CHECK_MODULES([CURSES],[ncursesw],[
-       AC_DEFINE(HAVE_NCURSESW_CURSES_H, 1)
+PKG_CHECK_MODULES([CURSES],[ncurses],[
+       AC_DEFINE(HAVE_NCURSESW_NCURSES_H, 1)
        ],
-       [PKG_CHECK_MODULES([CURSES],[ncurses],[
-               AC_DEFINE(HAVE_NCURSES_H, 1)
+       [PKG_CHECK_MODULES([CURSES],[ncursesw],[
+               AC_DEFINE(HAVE_CURSES_H, 1)
                ],
                [AX_WITH_CURSES()
                if test "x$ax_cv_ncursesw" != xyes && test "x$ax_cv_ncurses" != xyes; then
